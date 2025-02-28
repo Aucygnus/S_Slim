@@ -10,10 +10,13 @@ public class BMICalculator extends HealthCalculator {
         super(weight,height,age,gender);
     }
 
-    /**
-     * @return ค่าดัชนีมวลกาย
-     */
-    public double calculateBMI() {
-        return weight / Math.pow(height / 100, 2);
+    @Override
+    public double calculate() {
+        return getWeight() / Math.pow(getHeight() / 100, 2);
+    }
+
+    @Override
+    public String getResultDescription() {
+        return "BMI";
     }
 }

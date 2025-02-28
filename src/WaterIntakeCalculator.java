@@ -10,10 +10,13 @@ public class WaterIntakeCalculator extends HealthCalculator{
         super(weight, height, age, gender);
     }
 
-    /**
-     * @return ปริมาณน้ำที่ควรดื่มใน 1 วัน
-     */
-    public double calculateWaterIntake() {
-        return weight * 0.033;
+    @Override
+    public double calculate() {
+        return getWeight() * 0.033;
+    }
+
+    @Override
+    public String getResultDescription() {
+        return "Water Intake";
     }
 }

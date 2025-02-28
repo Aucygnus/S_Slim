@@ -25,40 +25,41 @@ public class S_SlimGUI extends JFrame {
         bmiButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showInputDialog("BMI", true, true, false, false);
+                showInputDialog(new BMICalculator(0, 0, 0, ""), true, true, false, false, true);
             }
         });
 
         bmrButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showInputDialog("BMR", true, true, true, true);
+                showInputDialog(new BMRCalculator(0, 0, 0, ""), true, true, true, true, true);
             }
         });
 
         bodyFatButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               showInputDialog("Body Fat", true, true, true, true);
+               showInputDialog(new BodyFatCalculator(0, 0, 0, ""), true, true, true, true, true);
             }
         });
 
         waterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showInputDialog("Water Intake", true, false, false, false);
+                showInputDialog(new WaterIntakeCalculator(0, 0, 0, ""), true, false, false, false, true);
             }
         });
     }
 
     /**
-     * @param calculationType แยกประเภทการคำนวณของแต่ละฟังก์ชัน
+     * @param calculator ฟังก์ชันการคำนวณ
      * @param needWeight ตรวจสอบว่าต้องการข้อมูลน้ำหนักหรือไม่
      * @param needHeight ตรวจสอบว่าต้องการข้อมูลส่วนสูงหรือไม่
      * @param needAge ตรวจสอบว่าต้องการข้อมูลอายุหรือไม่
      * @param needGender ตรวจสอบว่าต้องการข้อมูลเพศหรือไม่
+     * @param showResult
      */
-    private void showInputDialog(String calculationType, boolean needWeight, boolean needHeight, boolean needAge, boolean needGender) {
+    private void showInputDialog(HealthCalculator calculator, boolean needWeight, boolean needHeight, boolean needAge, boolean needGender, boolean showResult) {
         JPanel panel = new JPanel(new GridLayout(0 , 2));
         JTextField weightField = new JTextField();
         JTextField heightField = new JTextField();
@@ -70,19 +71,19 @@ public class S_SlimGUI extends JFrame {
             panel.add(weightField);
         }
         if (needHeight) {
-        panel.add(new JLabel("Height (cm):"));
-        panel.add(heightField);            
+            panel.add(new JLabel("Height (cm):"));
+            panel.add(heightField);            
         }
         if (needAge) {
-        panel.add(new JLabel("Age:"));
-        panel.add(ageField);            
+            panel.add(new JLabel("Age:"));
+            panel.add(ageField);            
         }
         if (needGender) {
-        panel.add(new JLabel("Gender:"));
-        panel.add(genderComboBox);            
+            panel.add(new JLabel("Gender:"));
+            panel.add(genderComboBox);            
         }
 
-        int result = JOptionPane.showConfirmDialog(null, panel, "Enter Details for " + calculationType, JOptionPane.OK_CANCEL_OPTION);
+        int result = JOptionPane.showConfirmDialog(null, panel, "Enter Details for ", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
                 double weight = needWeight ? Double.parseDouble(weightField.getText()) : 0;
@@ -90,28 +91,33 @@ public class S_SlimGUI extends JFrame {
                 int age = needAge ? Integer.parseInt(ageField.getText()) : 0;
                 String gender = needGender ? (String) genderComboBox.getSelectedItem() : "Male";
 
-                switch (calculationType) {
-                    case "BMI":
-                        BMICalculator bmiCalculator = new BMICalculator(weight, height, age, gender);
-                        double bmi = bmiCalculator.calculateBMI();
-                        JOptionPane.showMessageDialog(null, "BMI: " + String.format("%.2f", bmi), "Result", JOptionPane.INFORMATION_MESSAGE);
+                calculator.setWeight(weight);
+                calculator.setHeight(height);
+                calculator.setAge(age);
+                calculator.setGender(gender);
+
+                double resultValue = calculator.calculate();
+                String resultDescription = calculator.getResultDescription();
+
+                String resultMessage;
+                switch (resultDescription) {
+                    case "BMI" :
+                        resultMessage = "Your BMI is " + String.format("%.2f", resultValue);
                         break;
-                    case "BMR":
-                        BMRCalculator bmrCalculator = new BMRCalculator(weight, height, age, gender);
-                        double bmr = bmrCalculator.calculateBMR();
-                        JOptionPane.showMessageDialog(null, "BMR: " + String.format("%.2f", bmr) + " calories/day", "Result", JOptionPane.INFORMATION_MESSAGE);
+                    case "BMR" :
+                        resultMessage = "Your BMR is " + String.format("%.2f ", resultValue) + "calories/day";
                         break;
-                    case "Body Fat":
-                        BodyFatCalculator bodyFatCalculator = new BodyFatCalculator(weight, height, age, gender);
-                        double bodyFat = bodyFatCalculator.calculateBodyFat();
-                        JOptionPane.showMessageDialog(null, "Body Fat: " + String.format("%.2f", bodyFat) + "%", "Result", JOptionPane.INFORMATION_MESSAGE);
+                    case "Body Fat" :
+                        resultMessage = "Your Body Fat percentage is " + String.format("%.2f ", resultValue) + "%";
                         break;
-                    case "Water Intake":
-                        WaterIntakeCalculator waterCalculator = new WaterIntakeCalculator(weight, height, age, gender);
-                        double waterIntake = waterCalculator.calculateWaterIntake();
-                        JOptionPane.showMessageDialog(null, "Water Intake: " + String.format("%.2f", waterIntake) + " liters/day", "Result", JOptionPane.INFORMATION_MESSAGE);
+                    case "Water Intake" :
+                        resultMessage = "The amount of water you should drink is " + String.format("%.2f ", resultValue) + "liters/day";
                         break;
+                    default :
+                        resultMessage = "Result: " + String.format("%.2f", resultValue);
                 }
+
+                JOptionPane.showMessageDialog(null, resultMessage, "Result", JOptionPane.INFORMATION_MESSAGE);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(null, "Invalid input. Please enter numbers.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -119,11 +125,8 @@ public class S_SlimGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new S_SlimGUI().setVisible(true);
-            }
+        SwingUtilities.invokeLater(() -> {
+            new S_SlimGUI().setVisible(true);
         });
     }
 }

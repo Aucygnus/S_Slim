@@ -9,16 +9,19 @@ public class BodyFatCalculator extends HealthCalculator{
     public BodyFatCalculator(double weight, double height, int age, String gender) {
         super(weight, height, age, gender);
     }
-    
-    /**
-     * @return เปอร์เซ็นต์ไขมันในร่างกาย
-     */
-    public double calculateBodyFat() {
-        double bmi = new BMICalculator(weight, height, age, gender).calculateBMI();
-        if (gender.equalsIgnoreCase("male")) {
-            return (1.20 * bmi) + (0.23 * age) - 16.2;
+
+    @Override
+    public double calculate() {
+        double bmi = new BMICalculator(getWeight(), getHeight(), getAge(), getGender()).calculate();
+        if (getGender().equalsIgnoreCase("male")) {
+            return (1.20 * bmi) + (0.23 * getAge()) - 16.2;
         } else {
-            return (1.20 * bmi) + (0.23 * age) - 5.4;
+            return (1.20 * bmi) + (0.23 * getAge()) - 5.4;
         }
+    }
+
+    @Override
+    public String getResultDescription() {
+        return "Body Fat";
     }
 }

@@ -10,14 +10,17 @@ public class BMRCalculator extends HealthCalculator{
         super(weight, height, age, gender);
     }
 
-    /**
-     * @return จำนวนแคลอรี่ที่ต้องใช้ใน 1 วัน
-     */
-    public double calculateBMR() {
-        if (gender.equalsIgnoreCase("male")) {
-            return 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+    @Override
+    public double calculate() {
+        if (getGender().equalsIgnoreCase("male")) {
+            return 88.362 + (13.397 * getWeight()) + (4.799 * getHeight()) - (5.677 * getAge());
         } else {
-            return 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+            return 447.593 + (9.247 * getWeight()) + (3.098 * getHeight()) - (4.330 * getAge());
         }
+    }
+
+    @Override
+    public String getResultDescription() {
+        return "BMR";
     }
 }
